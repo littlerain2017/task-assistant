@@ -11,9 +11,20 @@ Page({
     openid: ''
   },
 
-  onLoad() {
+  onShow() {
     const cached = wx.getStorageSync('openid')
     if (cached) this.setData({ openid: cached })
+
+    // Pre-populate goals from today's saved tasks
+    const dateKey = new Date().toISOString().slice(0, 10)
+    const all = wx.getStorageSync('all_tasks') || []
+    const todayNames = all
+      .filter(t => t.date === dateKey)
+      .map(t => t.name)
+
+    if (todayNames.length > 0) {
+      this.setData({ goals: todayNames })
+    }
   },
 
   onInput(e) {
