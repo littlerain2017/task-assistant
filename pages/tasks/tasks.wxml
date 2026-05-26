@@ -15,19 +15,50 @@
     </view>
   </view>
 
-  <view class="card" wx:if="{{tasks.length > 0}}">
-    <view class="section-title">已添加 {{tasks.length}} 项</view>
-    <view class="task-item" wx:for="{{tasks}}" wx:key="index">
-      <text class="task-dot">·</text>
-      <text class="task-text">{{item}}</text>
+  <view class="card" wx:if="{{newTasks.length > 0}}">
+    <view class="section-title">待提交 {{newTasks.length}} 项</view>
+    <view class="task-item" wx:for="{{newTasks}}" wx:key="index">
+      <view class="remind-tag {{item.remind}}">{{remindLabels[item.remind]}}</view>
+      <text class="task-text">{{item.name}}</text>
       <text class="delete-btn" bindtap="removeTask" data-index="{{index}}">×</text>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{newTasks.length > 0}}">
+    <view class="section-title">提醒时间</view>
+    <view class="remind-options">
+      <view
+        class="remind-option {{remindHours === item.value ? 'selected' : ''}}"
+        style="--color: {{item.color}}"
+        wx:for="{{remindOptions}}"
+        wx:for-item="item"
+        wx:key="value"
+        bindtap="selectRemind"
+        data-value="{{item.value}}"
+      >{{item.label}}</view>
     </view>
   </view>
 
   <button
     class="btn-primary"
     bindtap="submitTasks"
-    wx:if="{{tasks.length > 0}}"
+    wx:if="{{newTasks.length > 0}}"
   >提交并订阅提醒</button>
+
+  <view class="card" wx:if="{{history.length > 0}}">
+    <view class="history-header" bindtap="toggleHistory">
+      <text class="section-title">历史任务</text>
+      <text class="toggle-icon">{{showHistory ? '收起' : '展开'}}</text>
+    </view>
+    <view wx:if="{{showHistory}}">
+      <view class="history-item" wx:for="{{history}}" wx:key="id">
+        <view class="history-left">
+          <text class="history-date">{{item.date}}</text>
+          <text class="history-name">{{item.name}}</text>
+        </view>
+        <text class="readd-btn" bindtap="readdTask" data-index="{{index}}">+ 再加</text>
+      </view>
+    </view>
+  </view>
 
 </view>

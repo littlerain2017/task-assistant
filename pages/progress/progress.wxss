@@ -2,44 +2,56 @@
   margin-bottom: 20rpx;
 }
 
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
 .task-name {
   font-size: 32rpx;
   font-weight: 500;
   color: #1a1a1a;
-  margin-bottom: 24rpx;
-}
-
-.status-row {
-  display: flex;
-  gap: 16rpx;
-}
-
-.status-btn {
   flex: 1;
-  text-align: center;
-  padding: 16rpx 0;
-  border-radius: 10rpx;
-  font-size: 26rpx;
-  background: #f4f6f9;
+  margin-right: 20rpx;
+}
+
+.progress-value {
+  font-size: 30rpx;
+  font-weight: 600;
   color: #999;
+  min-width: 70rpx;
+  text-align: right;
+  transition: color 0.2s;
 }
 
-.status-btn.gray {
-  background: #e8e8e8;
-  color: #666;
-  font-weight: 500;
-}
-
-.status-btn.blue {
-  background: #e6f4ff;
+.progress-value.going {
   color: #1677ff;
-  font-weight: 500;
 }
 
-.status-btn.green {
-  background: #f6ffed;
+.progress-value.done {
   color: #52c41a;
-  font-weight: 500;
+}
+
+.slider {
+  margin: 0 -10rpx;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22rpx;
+  color: #bbb;
+  margin-top: 4rpx;
+  padding: 0 4rpx;
+}
+
+.date-header {
+  font-size: 24rpx;
+  color: #bbb;
+  padding: 20rpx 0 8rpx;
+  letter-spacing: 2rpx;
 }
 
 .empty-tip {

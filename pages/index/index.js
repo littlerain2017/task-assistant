@@ -180,5 +180,9 @@ Page({
 
   goToProgress() {
     wx.navigateTo({ url: '/pages/progress/progress' })
+  },
+
+  goToRandom() {
+    wx.navigateTo({ url: '/pages/random/random' })
   }
 })

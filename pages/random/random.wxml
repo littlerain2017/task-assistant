@@ -1,0 +1,48 @@
+<view class="container">
+
+  <view wx:if="{{!result}}">
+    <view class="card">
+      <view class="section-title">你最近想做什么？</view>
+      <view class="hint">随便写，越模糊越好</view>
+      <view class="input-row">
+        <input
+          class="task-input"
+          placeholder="比如：写点东西、动一动、整理一下..."
+          value="{{inputValue}}"
+          bindinput="onInput"
+          bindconfirm="addGoal"
+          confirm-type="done"
+        />
+        <view class="add-btn" bindtap="addGoal">+</view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{goals.length > 0}}">
+      <view class="goal-item" wx:for="{{goals}}" wx:key="index">
+        <text class="goal-text">{{item}}</text>
+        <text class="delete-btn" bindtap="removeGoal" data-index="{{index}}">×</text>
+      </view>
+    </view>
+
+    <button
+      class="btn-random"
+      bindtap="randomStart"
+      wx:if="{{goals.length > 0}}"
+      disabled="{{loading}}"
+    >
+      <text wx:if="{{!loading}}">🎲 随机给我一个开始</text>
+      <text wx:if="{{loading}}">正在拆解...</text>
+    </button>
+  </view>
+
+  <view wx:if="{{result}}" class="result-view">
+    <view class="result-label">从「{{result.goal}}」开始</view>
+    <view class="result-step">{{result.first_step}}</view>
+    <view class="result-timer">30分钟后会来问你进展</view>
+    <view class="result-actions">
+      <button class="btn-reroll" bindtap="reroll">换一个</button>
+      <button class="btn-go" bindtap="goStart">就这个，开始</button>
+    </view>
+  </view>
+
+</view>

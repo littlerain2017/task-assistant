@@ -1,25 +1,53 @@
+function loadAllTasks() {
+  return wx.getStorageSync('all_tasks') || []
+}
+
+function saveAllTasks(tasks) {
+  wx.setStorageSync('all_tasks', tasks)
+}
+
 Page({
   data: {
-    tasks: []
+    groups: []
   },
 
   onShow() {
-    const dateKey = new Date().toISOString().slice(0, 10)
-    const tasks = wx.getStorageSync(`tasks_${dateKey}`) || []
-    this.setData({ tasks })
+    const all = loadAllTasks()
+    const map = {}
+    all.forEach(t => {
+      if (!map[t.date]) map[t.date] = []
+      map[t.date].push(t)
+    })
+    const groups = Object.keys(map).sort().reverse().map(date => ({
+      date,
+      tasks: map[date]
+    }))
+    this.setData({ groups })
   },
 
-  setStatus(e) {
-    const { index, status } = e.currentTarget.dataset
-    const tasks = [...this.data.tasks]
-    tasks[index].status = status
-    this.setData({ tasks })
+  onSliderChanging(e) {
+    const { gindex, tindex } = e.currentTarget.dataset
+    const groups = this.data.groups.map(g => ({ ...g, tasks: [...g.tasks] }))
+    groups[gindex].tasks[tindex].progress = e.detail.value
+    this.setData({ groups })
+  },
+
+  onSliderChange(e) {
+    const { gindex, tindex } = e.currentTarget.dataset
+    const groups = this.data.groups.map(g => ({ ...g, tasks: [...g.tasks] }))
+    groups[gindex].tasks[tindex].progress = e.detail.value
+    this.setData({ groups })
+
+    const all = loadAllTasks()
+    const task = groups[gindex].tasks[tindex]
+    const idx = all.findIndex(t => t.id === task.id)
+    if (idx !== -1) {
+      all[idx].progress = e.detail.value
+      saveAllTasks(all)
+    }
   },
 
   submitProgress() {
-    const dateKey = new Date().toISOString().slice(0, 10)
-    wx.setStorageSync(`tasks_${dateKey}`, this.data.tasks)
-
     wx.showToast({ title: '进度已更新', icon: 'success' })
     setTimeout(() => wx.navigateBack(), 1500)
   }

@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/tasks/tasks",
-    "pages/progress/progress"
+    "pages/progress/progress",
+    "pages/random/random"
   ],
   "window": {
     "backgroundTextStyle": "dark",

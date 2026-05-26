@@ -27,5 +27,8 @@
       <button class="btn-space" catchtap="goToTasks">录入任务</button>
       <button class="btn-space secondary" catchtap="goToProgress" wx:if="{{taskCount > 0}}">更新进度</button>
     </view>
+    <view class="btn-row" style="margin-top: 16rpx;">
+      <button class="btn-space random" catchtap="goToRandom">🎲 随机开始</button>
+    </view>
   </view>
 </view>

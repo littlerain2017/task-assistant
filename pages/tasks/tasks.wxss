@@ -24,20 +24,27 @@
 .task-item {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 18rpx 0;
   border-bottom: 1rpx solid #f5f5f5;
-  gap: 12rpx;
+  gap: 16rpx;
 }
 
 .task-item:last-child {
   border-bottom: none;
 }
 
-.task-dot {
-  color: #1677ff;
-  font-size: 36rpx;
-  line-height: 1;
+.remind-tag {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+  white-space: nowrap;
 }
+
+.remind-tag.10min { background: #ede9fe; color: #7c3aed; }
+.remind-tag.30min { background: #dbeafe; color: #1d4ed8; }
+.remind-tag.1hr   { background: #d1fae5; color: #065f46; }
+.remind-tag.3hr   { background: #ffedd5; color: #c2410c; }
 
 .task-text {
   flex: 1;
@@ -49,4 +56,69 @@
   color: #ccc;
   font-size: 40rpx;
   padding: 0 8rpx;
+}
+
+.remind-options {
+  display: flex;
+  gap: 16rpx;
+}
+
+.remind-option {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  background: #f4f6f9;
+  color: #999;
+  font-weight: 500;
+}
+
+.remind-option.selected {
+  background: var(--color);
+  color: #fff;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle-icon {
+  font-size: 26rpx;
+  color: #1677ff;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.history-item:last-child { border-bottom: none; }
+
+.history-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  flex: 1;
+}
+
+.history-date {
+  font-size: 22rpx;
+  color: #bbb;
+}
+
+.history-name {
+  font-size: 28rpx;
+  color: #555;
+}
+
+.readd-btn {
+  font-size: 26rpx;
+  color: #1677ff;
+  padding: 8rpx 16rpx;
 }

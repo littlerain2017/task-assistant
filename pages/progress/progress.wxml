@@ -1,41 +1,40 @@
 <view class="container">
 
-  <view class="card" wx:if="{{tasks.length === 0}}">
-    <view class="empty-tip">今天还没有录入任务</view>
+  <view wx:if="{{groups.length === 0}}" class="card">
+    <view class="empty-tip">还没有录入任何任务</view>
   </view>
 
-  <view
-    class="card task-card"
-    wx:for="{{tasks}}"
-    wx:key="index"
-  >
-    <view class="task-name">{{item.name}}</view>
-    <view class="status-row">
-      <view
-        class="status-btn {{item.status === '未开始' ? 'gray' : ''}}"
-        bindtap="setStatus"
-        data-index="{{index}}"
-        data-status="未开始"
-      >未开始</view>
-      <view
-        class="status-btn {{item.status === '进行中' ? 'blue' : ''}}"
-        bindtap="setStatus"
-        data-index="{{index}}"
-        data-status="进行中"
-      >进行中</view>
-      <view
-        class="status-btn {{item.status === '已完成' ? 'green' : ''}}"
-        bindtap="setStatus"
-        data-index="{{index}}"
-        data-status="已完成"
-      >已完成</view>
+  <view wx:for="{{groups}}" wx:key="date" wx:for-item="group" wx:for-index="gi">
+    <view class="date-header">{{group.date}}</view>
+
+    <view class="card task-card" wx:for="{{group.tasks}}" wx:key="id" wx:for-item="task" wx:for-index="ti">
+      <view class="task-header">
+        <view class="task-name">{{task.name}}</view>
+        <view class="progress-value {{task.progress >= 100 ? 'done' : task.progress > 0 ? 'going' : ''}}">
+          {{task.progress}}%
+        </view>
+      </view>
+      <slider
+        min="0"
+        max="100"
+        step="1"
+        value="{{task.progress}}"
+        activeColor="{{task.progress >= 100 ? '#52c41a' : '#1677ff'}}"
+        backgroundColor="#e8e8e8"
+        block-size="24"
+        bindchanging="onSliderChanging"
+        bindchange="onSliderChange"
+        data-gindex="{{gi}}"
+        data-tindex="{{ti}}"
+      />
+      <view class="slider-labels">
+        <text>未开始</text>
+        <text>进行中</text>
+        <text>已完成</text>
+      </view>
     </view>
   </view>
 
-  <button
-    class="btn-primary"
-    bindtap="submitProgress"
-    wx:if="{{tasks.length > 0}}"
-  >提交进度</button>
+  <button class="btn-primary" bindtap="submitProgress" wx:if="{{groups.length > 0}}">保存进度</button>
 
 </view>
