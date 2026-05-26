@@ -175,15 +175,15 @@ Page({
     })
   },
 
-  goToTasks() {
-    wx.navigateTo({ url: '/pages/tasks/tasks' })
+  goToFocus() {
+    wx.navigateTo({ url: '/pages/tasks/tasks?mode=focus' })
+  },
+
+  goToScattered() {
+    wx.navigateTo({ url: '/pages/random/random' })
   },
 
   goToProgress() {
     wx.navigateTo({ url: '/pages/progress/progress' })
-  },
-
-  goToRandom() {
-    wx.navigateTo({ url: '/pages/random/random' })
   }
 })

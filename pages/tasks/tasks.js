@@ -39,7 +39,6 @@ function saveDraftTasks(tasks) {
   wx.setStorageSync('draft_tasks', tasks)
 }
 
-// Save pending tasks to permanent history and clear drafts
 function commitToHistory(tasks, remindHours) {
   const all = loadAllTasks()
   const date = new Date().toISOString().slice(0, 10)
@@ -56,6 +55,7 @@ function commitToHistory(tasks, remindHours) {
 
 Page({
   data: {
+    mode: '',
     newTasks: [],
     history: [],
     inputValue: '',
@@ -64,6 +64,15 @@ Page({
     remindOptions: REMIND_OPTIONS,
     remindLabels: REMIND_LABELS,
     showHistory: false,
+    breakdown: null,
+    loadingBreakdown: false,
+  },
+
+  onLoad(options) {
+    this.setData({ mode: options.mode || '' })
+    if (options.mode === 'focus') {
+      wx.setNavigationBarTitle({ title: 'Focus 模式' })
+    }
   },
 
   onShow() {
@@ -133,12 +142,44 @@ Page({
     saveDraftTasks(newTasks)
   },
 
-  _finishSubmit(label) {
-    commitToHistory(this.data.newTasks, this.data.remindHours)
+  _finishSubmit(toastLabel) {
+    const tasks = [...this.data.newTasks]
+    commitToHistory(tasks, this.data.remindHours)
     const all = loadAllTasks()
     this.setData({ newTasks: [], history: all.slice().reverse() })
-    wx.showToast({ title: label, icon: 'success' })
-    setTimeout(() => wx.navigateBack(), 1500)
+
+    if (this.data.mode === 'focus' && tasks.length > 0) {
+      this.loadFocusBreakdown(tasks.map(t => t.name))
+    } else {
+      wx.showToast({ title: toastLabel, icon: 'success' })
+      setTimeout(() => wx.navigateBack(), 1500)
+    }
+  },
+
+  loadFocusBreakdown(taskNames) {
+    this.setData({ loadingBreakdown: true })
+    wx.request({
+      url: `${API}/focus-breakdown`,
+      method: 'POST',
+      header: HEADERS,
+      data: {
+        openid: this.data.openid || wx.getStorageSync('openid') || 'anonymous',
+        tasks: taskNames
+      },
+      success: (r) => {
+        this.setData({ breakdown: r.data, loadingBreakdown: false })
+      },
+      fail: () => {
+        this.setData({ loadingBreakdown: false })
+        wx.showToast({ title: '任务已保存', icon: 'success' })
+        setTimeout(() => wx.navigateBack(), 1500)
+      }
+    })
+  },
+
+  goStart() {
+    wx.showToast({ title: '加油！', icon: 'success' })
+    setTimeout(() => wx.navigateBack(), 1000)
   },
 
   sendToBackend(openid) {
@@ -156,7 +197,6 @@ Page({
         this._finishSubmit(`已保存，${label}后提醒`)
       },
       fail: () => {
-        // Backend unreachable — still save locally
         this._finishSubmit('已本地保存（提醒不可用）')
       }
     })
@@ -194,7 +234,6 @@ Page({
         }
       },
       fail: () => {
-        // User declined subscription — still save tasks locally
         this._finishSubmit('已保存（未设置提醒）')
       }
     })

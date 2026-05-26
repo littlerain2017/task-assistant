@@ -23,12 +23,24 @@
         <text class="stat-label">待办</text>
       </view>
     </view>
-    <view class="btn-row">
-      <button class="btn-space" catchtap="goToTasks">录入任务</button>
-      <button class="btn-space secondary" catchtap="goToProgress" wx:if="{{taskCount > 0}}">更新进度</button>
+
+    <view class="mode-hint">今天，你想怎么工作？</view>
+
+    <view class="mode-row">
+      <view class="mode-card mode-focus" catchtap="goToFocus">
+        <text class="mode-icon">⚡</text>
+        <text class="mode-name">Focus</text>
+        <text class="mode-zh">专注模式</text>
+        <text class="mode-desc">有计划，逐步击破</text>
+      </view>
+      <view class="mode-card mode-scattered" catchtap="goToScattered">
+        <text class="mode-icon">🌊</text>
+        <text class="mode-name">Scattered</text>
+        <text class="mode-zh">随机模式</text>
+        <text class="mode-desc">打破僵局，随机开始</text>
+      </view>
     </view>
-    <view class="btn-row" style="margin-top: 16rpx;">
-      <button class="btn-space random" catchtap="goToRandom">🎲 随机开始</button>
-    </view>
+
+    <button class="btn-progress" catchtap="goToProgress" wx:if="{{taskCount > 0}}">查看进度</button>
   </view>
 </view>
