@@ -1,0 +1,33 @@
+<view class="container">
+
+  <view class="card">
+    <view class="section-title">今天要做什么？</view>
+    <view class="input-row">
+      <input
+        class="task-input"
+        placeholder="输入任务，回车添加"
+        value="{{inputValue}}"
+        bindinput="onInput"
+        bindconfirm="addTask"
+        confirm-type="done"
+      />
+      <view class="add-btn" bindtap="addTask">+</view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{tasks.length > 0}}">
+    <view class="section-title">已添加 {{tasks.length}} 项</view>
+    <view class="task-item" wx:for="{{tasks}}" wx:key="index">
+      <text class="task-dot">·</text>
+      <text class="task-text">{{item}}</text>
+      <text class="delete-btn" bindtap="removeTask" data-index="{{index}}">×</text>
+    </view>
+  </view>
+
+  <button
+    class="btn-primary"
+    bindtap="submitTasks"
+    wx:if="{{tasks.length > 0}}"
+  >提交并订阅提醒</button>
+
+</view>

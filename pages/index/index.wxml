@@ -1,0 +1,31 @@
+<view class="space-container">
+  <canvas type="2d" id="spaceCanvas" class="space-canvas" bindtap="onTap" />
+
+  <view class="overlay-top">
+    <view class="quote-text">{{quote}}</view>
+    <view class="date-text">{{today}}</view>
+  </view>
+
+  <view class="overlay-bottom">
+    <view class="stats" wx:if="{{taskCount > 0}}">
+      <view class="stat-item">
+        <text class="stat-num">{{taskCount}}</text>
+        <text class="stat-label">任务</text>
+      </view>
+      <view class="stat-divider" />
+      <view class="stat-item">
+        <text class="stat-num done">{{doneCount}}</text>
+        <text class="stat-label">完成</text>
+      </view>
+      <view class="stat-divider" />
+      <view class="stat-item">
+        <text class="stat-num pending">{{taskCount - doneCount}}</text>
+        <text class="stat-label">待办</text>
+      </view>
+    </view>
+    <view class="btn-row">
+      <button class="btn-space" catchtap="goToTasks">录入任务</button>
+      <button class="btn-space secondary" catchtap="goToProgress" wx:if="{{taskCount > 0}}">更新进度</button>
+    </view>
+  </view>
+</view>
