@@ -121,21 +121,24 @@ Page({
     const W = this.canvasWidth
     const H = this.canvasHeight
 
-    // Horizontal bands — same proportions as p5 sketch
+    // More tracks, full coverage for dense dark look
     const tracks = [
-      { y: H * 0.05,  density: 0.9,  xStart: -0.15, xEnd: 0.60 },
-      { y: H * 0.15,  density: 0.6,  xStart: 0.45,  xEnd: 1.05 },
-      { y: H * 0.28,  density: 0.8,  xStart: -0.10, xEnd: 0.80 },
-      { y: H * 0.42,  density: 1.0,  xStart: -0.12, xEnd: 1.05 },
-      { y: H * 0.58,  density: 0.7,  xStart: 0.20,  xEnd: 1.10 },
-      { y: H * 0.72,  density: 0.8,  xStart: -0.15, xEnd: 0.65 },
-      { y: H * 0.86,  density: 0.7,  xStart: 0.30,  xEnd: 1.10 },
+      { y: H * 0.04,  density: 1.1,  xStart: -0.20, xEnd: 0.65 },
+      { y: H * 0.12,  density: 0.9,  xStart: 0.40,  xEnd: 1.15 },
+      { y: H * 0.21,  density: 1.0,  xStart: -0.15, xEnd: 0.75 },
+      { y: H * 0.30,  density: 1.2,  xStart: 0.10,  xEnd: 1.10 },
+      { y: H * 0.40,  density: 1.1,  xStart: -0.20, xEnd: 0.85 },
+      { y: H * 0.50,  density: 1.0,  xStart: 0.25,  xEnd: 1.15 },
+      { y: H * 0.60,  density: 1.1,  xStart: -0.15, xEnd: 0.70 },
+      { y: H * 0.70,  density: 0.9,  xStart: 0.30,  xEnd: 1.10 },
+      { y: H * 0.80,  density: 1.0,  xStart: -0.20, xEnd: 0.80 },
+      { y: H * 0.90,  density: 1.1,  xStart: 0.15,  xEnd: 1.15 },
     ]
 
     const decors = []
 
     for (const track of tracks) {
-      const count = Math.floor(26 * track.density)
+      const count = Math.floor(48 * track.density)
       const span = (track.xEnd - track.xStart) * W
 
       for (let i = 0; i < count; i++) {
@@ -149,16 +152,16 @@ Page({
           x, y, baseY: y,
           w: pill ? 36 + Math.random() * 120 : size,
           h: pill ? 13 + Math.random() * 14  : size,
-          speed: 0.04 + Math.random() * 0.10,
+          speed: 0.8 + Math.random() * 2.4,
           driftOffset: Math.random() * 10000,
           floatAmp: 1.5 + Math.random() * 4.5,
-          alpha: 46 + Math.random() * 70,
+          alpha: 90 + Math.random() * 110,
           color,
         })
       }
 
       // Large red/pink horizontal pills per track
-      for (let k = 0; k < 2; k++) {
+      for (let k = 0; k < 3; k++) {
         const pinks = [[255, 36, 55], [255, 52, 116], [255, 145, 215]]
         const color = pinks[Math.floor(Math.random() * pinks.length)]
         const bx = track.xStart * W + Math.random() * span
@@ -167,10 +170,10 @@ Page({
           x: bx, y: by, baseY: by,
           w: 100 + Math.random() * 130,
           h: 22  + Math.random() * 16,
-          speed: 0.03 + Math.random() * 0.07,
+          speed: 0.6 + Math.random() * 1.8,
           driftOffset: Math.random() * 10000,
           floatAmp: 1 + Math.random() * 2.5,
-          alpha: 88 + Math.random() * 50,
+          alpha: 140 + Math.random() * 80,
           color,
         })
       }
@@ -192,7 +195,7 @@ Page({
         title: name,
         x: bx, y: by, baseY: by,
         w: bw, h: bh,
-        speed: 0.06 + Math.random() * 0.10,
+        speed: 1.0 + Math.random() * 1.8,
         driftOffset: Math.random() * 10000,
         floatAmp: 2 + Math.random() * 4,
         color,
@@ -215,9 +218,7 @@ Page({
     const { ctx, canvasWidth: W, canvasHeight: H } = this
     this.frameCount++
 
-    ctx.fillStyle = '#fffef8'
-    ctx.fillRect(0, 0, W, H)
-    ctx.fillStyle = 'rgba(255,245,215,0.07)'  // warm fog
+    ctx.fillStyle = '#080808'
     ctx.fillRect(0, 0, W, H)
 
     for (const b of this.decorBubbles) {
