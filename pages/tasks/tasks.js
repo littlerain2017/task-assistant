@@ -31,6 +31,29 @@ function saveAllTasks(tasks) {
   wx.setStorageSync('all_tasks', tasks)
 }
 
+function loadDraftTasks() {
+  return wx.getStorageSync('draft_tasks') || []
+}
+
+function saveDraftTasks(tasks) {
+  wx.setStorageSync('draft_tasks', tasks)
+}
+
+// Save pending tasks to permanent history and clear drafts
+function commitToHistory(tasks, remindHours) {
+  const all = loadAllTasks()
+  const date = new Date().toISOString().slice(0, 10)
+  const toAdd = tasks.map(t => ({
+    id: Date.now() + Math.random(),
+    name: t.name,
+    remind: t.remind || hoursToKey(remindHours),
+    progress: 0,
+    date
+  }))
+  saveAllTasks([...all, ...toAdd])
+  saveDraftTasks([])
+}
+
 Page({
   data: {
     newTasks: [],
@@ -45,7 +68,11 @@ Page({
 
   onShow() {
     const all = loadAllTasks()
-    this.setData({ history: all.slice().reverse() })
+    const drafts = loadDraftTasks()
+    this.setData({
+      history: all.slice().reverse(),
+      newTasks: drafts,
+    })
     this.getOpenid()
   },
 
@@ -78,16 +105,16 @@ Page({
     const val = this.data.inputValue.trim()
     if (!val) return
     const remindKey = hoursToKey(this.data.remindHours)
-    this.setData({
-      newTasks: [...this.data.newTasks, { name: val, remind: remindKey }],
-      inputValue: ''
-    })
+    const newTasks = [...this.data.newTasks, { name: val, remind: remindKey }]
+    this.setData({ newTasks, inputValue: '' })
+    saveDraftTasks(newTasks)
   },
 
   removeTask(e) {
     const newTasks = [...this.data.newTasks]
     newTasks.splice(e.currentTarget.dataset.index, 1)
     this.setData({ newTasks })
+    saveDraftTasks(newTasks)
   },
 
   selectRemind(e) {
@@ -101,9 +128,17 @@ Page({
   readdTask(e) {
     const task = this.data.history[e.currentTarget.dataset.index]
     const remindKey = hoursToKey(this.data.remindHours)
-    this.setData({
-      newTasks: [...this.data.newTasks, { name: task.name, remind: remindKey }]
-    })
+    const newTasks = [...this.data.newTasks, { name: task.name, remind: remindKey }]
+    this.setData({ newTasks })
+    saveDraftTasks(newTasks)
+  },
+
+  _finishSubmit(label) {
+    commitToHistory(this.data.newTasks, this.data.remindHours)
+    const all = loadAllTasks()
+    this.setData({ newTasks: [], history: all.slice().reverse() })
+    wx.showToast({ title: label, icon: 'success' })
+    setTimeout(() => wx.navigateBack(), 1500)
   },
 
   sendToBackend(openid) {
@@ -117,23 +152,12 @@ Page({
         remind_hours: this.data.remindHours
       },
       success: () => {
-        const all = loadAllTasks()
-        const date = new Date().toISOString().slice(0, 10)
-        const toAdd = this.data.newTasks.map(t => ({
-          id: Date.now() + Math.random(),
-          name: t.name,
-          remind: t.remind,
-          progress: 0,
-          date
-        }))
-        saveAllTasks([...all, ...toAdd])
-
         const label = REMIND_OPTIONS.find(o => o.value === this.data.remindHours)?.label || ''
-        wx.showToast({ title: `已保存，${label}后提醒`, icon: 'success' })
-        setTimeout(() => wx.navigateBack(), 1500)
+        this._finishSubmit(`已保存，${label}后提醒`)
       },
-      fail: (e) => {
-        wx.showModal({ title: '错误详情', content: JSON.stringify(e), showCancel: false })
+      fail: () => {
+        // Backend unreachable — still save locally
+        this._finishSubmit('已本地保存（提醒不可用）')
       }
     })
   },
@@ -160,17 +184,18 @@ Page({
                     wx.setStorageSync('openid', r.data.openid)
                     this.sendToBackend(r.data.openid)
                   } else {
-                    wx.showToast({ title: '登录失败，请重试', icon: 'error' })
+                    this._finishSubmit('已本地保存（登录失败）')
                   }
                 },
-                fail: () => wx.showToast({ title: '网络错误，请重试', icon: 'error' })
+                fail: () => this._finishSubmit('已本地保存（网络错误）')
               })
             }
           })
         }
       },
       fail: () => {
-        wx.showToast({ title: '请允许订阅提醒', icon: 'none' })
+        // User declined subscription — still save tasks locally
+        this._finishSubmit('已保存（未设置提醒）')
       }
     })
   }

@@ -47,8 +47,9 @@ Page({
 
   loadTasks() {
     const dateKey = new Date().toISOString().slice(0, 10)
-    const tasks = wx.getStorageSync(`tasks_${dateKey}`) || []
-    const doneCount = tasks.filter(t => t.status === '已完成').length
+    const all = wx.getStorageSync('all_tasks') || []
+    const tasks = all.filter(t => t.date === dateKey)
+    const doneCount = tasks.filter(t => t.progress >= 100).length
     this.setData({ taskCount: tasks.length, doneCount })
   },
 
