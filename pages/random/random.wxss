@@ -1,80 +1,134 @@
-.hint {
-  font-size: 26rpx;
-  color: #bbb;
-  margin-bottom: 20rpx;
+page {
+  background: #fffef8;
 }
 
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  background: #f4f6f9;
-  border-radius: 12rpx;
-  padding: 0 20rpx;
+.scatter-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.task-input {
-  flex: 1;
-  font-size: 30rpx;
-  padding: 24rpx 0;
-  color: #1a1a1a;
-}
-
-.add-btn {
-  font-size: 48rpx;
-  color: #a78bfa;
-  font-weight: 300;
-  padding: 0 8rpx;
-}
-
-.goal-item {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-}
-
-.goal-item:last-child { border-bottom: none; }
-
-.goal-text {
-  flex: 1;
-  font-size: 30rpx;
-  color: #333;
-}
-
-.delete-btn {
-  color: #ccc;
-  font-size: 40rpx;
-  padding: 0 8rpx;
-}
-
-.btn-random {
+.scatter-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  margin-top: 32rpx;
-  background: linear-gradient(135deg, #a78bfa, #60a5fa);
-  color: #fff;
-  border-radius: 16rpx;
-  font-size: 32rpx;
-  padding: 28rpx 0;
-  border: none;
+  height: 100%;
 }
 
-.btn-random[disabled] {
-  opacity: 0.6;
-}
-
-.result-view {
+/* ── No-tasks state ── */
+.no-tasks-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 254, 248, 0.96);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 60rpx 0;
+  justify-content: center;
+  gap: 18rpx;
+  padding: 60rpx;
+  z-index: 5;
+}
+
+.no-tasks-icon {
+  font-size: 80rpx;
+  margin-bottom: 8rpx;
+}
+
+.no-tasks-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.no-tasks-hint {
+  font-size: 28rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.btn-go-focus {
+  margin-top: 24rpx;
+  background: linear-gradient(135deg, #ff2437, #ff5274);
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  padding: 24rpx 64rpx;
+  border: none;
+}
+
+/* ── Bottom selection panel ── */
+.bottom-panel {
+  position: absolute;
+  bottom: 48rpx;
+  left: 40rpx;
+  right: 40rpx;
+  background: rgba(255, 255, 255, 0.90);
+  border-radius: 28rpx;
+  padding: 32rpx 36rpx;
+  box-shadow: 0 4rpx 32rpx rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px);
+  z-index: 10;
+}
+
+.panel-task-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: block;
+  margin-bottom: 24rpx;
+  line-height: 1.4;
+}
+
+.panel-hint {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.28);
+  text-align: center;
+  padding: 12rpx 0;
+}
+
+.btn-start {
+  width: 100%;
+  background: linear-gradient(135deg, #ff2437, #ff5274);
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  padding: 26rpx 0;
+  border: none;
+}
+
+.btn-start[disabled] {
+  opacity: 0.6;
+}
+
+/* ── Result view ── */
+.result-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fffef8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx;
+  z-index: 20;
 }
 
 .result-label {
   font-size: 26rpx;
-  color: #a78bfa;
+  color: #ff2437;
   margin-bottom: 32rpx;
   letter-spacing: 2rpx;
+  align-self: flex-start;
 }
 
 .result-step {
@@ -83,7 +137,6 @@
   color: #1a1a1a;
   text-align: center;
   line-height: 1.6;
-  padding: 0 20rpx;
   margin-bottom: 40rpx;
 }
 
@@ -111,7 +164,7 @@
 
 .btn-go {
   flex: 2;
-  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  background: linear-gradient(135deg, #ff2437, #ff5274);
   color: #fff;
   border-radius: 14rpx;
   font-size: 30rpx;
