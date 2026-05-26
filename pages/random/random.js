@@ -1,14 +1,28 @@
 const API = 'https://web-production-e223e.up.railway.app'
 const TEMPLATE_ID = 'wnPOFUCqyZgTiMY7pdHoNgyG65k3VBC38JXLuOfXdZw'
 
+// Black is dominant — matches the poster's print aesthetic
 const PALETTE = [
-  [255, 36, 55],
-  [255, 52, 116],
+  [8,   8,   8  ],   // black ×3 for dominance
+  [8,   8,   8  ],
+  [8,   8,   8  ],
+  [255, 36,  55 ],   // vivid red
+  [255, 52,  116],   // hot pink
+  [255, 145, 215],   // soft pink
+  [255, 228, 0  ],   // lemon yellow
+  [24,  174, 72 ],   // green
+  [36,  72,  190],   // cobalt blue
+  [255, 132, 0  ],   // orange
+  [160, 160, 160],   // gray
+]
+
+// Big decorative pills also use black + warm tones
+const BIG_PILL_COLORS = [
+  [8,   8,   8  ],
+  [8,   8,   8  ],
+  [255, 36,  55 ],
+  [255, 52,  116],
   [255, 145, 215],
-  [255, 228, 0],
-  [24, 174, 72],
-  [36, 72, 190],
-  [255, 132, 0]
 ]
 
 // Box-Muller transform — replaces p5's randomGaussian()
@@ -160,10 +174,9 @@ Page({
         })
       }
 
-      // Large red/pink horizontal pills per track
+      // Large horizontal pills per track — mostly black, some color
       for (let k = 0; k < 3; k++) {
-        const pinks = [[255, 36, 55], [255, 52, 116], [255, 145, 215]]
-        const color = pinks[Math.floor(Math.random() * pinks.length)]
+        const color = BIG_PILL_COLORS[Math.floor(Math.random() * BIG_PILL_COLORS.length)]
         const bx = track.xStart * W + Math.random() * span
         const by = track.y + gaussRandom(0, 11)
         decors.push({
@@ -218,7 +231,7 @@ Page({
     const { ctx, canvasWidth: W, canvasHeight: H } = this
     this.frameCount++
 
-    ctx.fillStyle = '#080808'
+    ctx.fillStyle = '#fffef8'
     ctx.fillRect(0, 0, W, H)
 
     for (const b of this.decorBubbles) {
@@ -239,49 +252,48 @@ Page({
     if (b.x > W + b.w + 80) b.x = -b.w - (40 + Math.random() * 160)
   },
 
-  // Mirrors drawReferenceLikeBubble() — decorative, no text
+  // Print-diffusion style — ink bleeding on paper, soft edge for colored, crisp for black
   _drawDecor(b) {
     const { ctx } = this
     const [r, g, bl] = b.color
-    for (let i = 4; i >= 1; i--) {
-      const grow = i * 4
-      ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / (i * 4.5) / 255})`
-      rrPath(ctx, b.x - grow / 2, b.y - grow / 2, b.w + grow, b.h + grow, 999)
-      ctx.fill()
+    const isBlack = r < 30 && g < 30 && bl < 30
+
+    if (!isBlack) {
+      // Colored bubbles: 2-pass soft halo like ink spreading on paper
+      for (let i = 2; i >= 1; i--) {
+        const grow = i * 6
+        ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / (i * 5) / 255})`
+        rrPath(ctx, b.x - grow / 2, b.y - grow / 2, b.w + grow, b.h + grow, 999)
+        ctx.fill()
+      }
     }
+
+    // Main body
     ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / 255})`
     rrPath(ctx, b.x, b.y, b.w, b.h, 999)
     ctx.fill()
-    ctx.fillStyle = 'rgba(255,255,255,0.05)'
-    rrPath(ctx, b.x + 3, b.y + 2, Math.max(1, b.w - 6), Math.max(1, b.h * 0.38), 999)
-    ctx.fill()
   },
 
-  // Mirrors drawTaskBubble() — clickable, shows text, highlights when selected
+  // Task bubbles: always solid black, white text — matches the poster's dark label bars
   _drawTask(b, isSelected) {
     const { ctx } = this
-    const [r, g, bl] = b.color
 
     ctx.save()
     ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
     ctx.translate(-b.w / 2, -b.h / 2)
 
-    for (let i = 4; i >= 1; i--) {
-      const grow = i * 5
-      ctx.fillStyle = `rgba(${r},${g},${bl},${(isSelected ? 45 : 28) / i / 255})`
-      rrPath(ctx, -grow / 2, -grow / 2, b.w + grow, b.h + grow, 999)
-      ctx.fill()
-    }
-
-    ctx.fillStyle = `rgba(${r},${g},${bl},${isSelected ? 0.92 : 0.76})`
+    // Solid black pill, slightly lighter when selected
+    ctx.fillStyle = isSelected ? 'rgba(40,40,40,1)' : 'rgba(8,8,8,0.94)'
     rrPath(ctx, 0, 0, b.w, b.h, 999)
     ctx.fill()
 
-    ctx.fillStyle = 'rgba(255,255,255,0.12)'
-    rrPath(ctx, 5, 3, b.w - 10, b.h * 0.36, 999)
+    // Subtle top highlight (like the poster's slight sheen)
+    ctx.fillStyle = 'rgba(255,255,255,0.05)'
+    rrPath(ctx, 4, 2, b.w - 8, b.h * 0.4, 999)
     ctx.fill()
 
-    ctx.fillStyle = 'rgba(255,255,255,0.95)'
+    // White text
+    ctx.fillStyle = '#ffffff'
     ctx.font = '500 14px -apple-system, "PingFang SC", sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
