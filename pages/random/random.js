@@ -1,11 +1,7 @@
 const API = 'https://web-production-e223e.up.railway.app'
 const TEMPLATE_ID = 'wnPOFUCqyZgTiMY7pdHoNgyG65k3VBC38JXLuOfXdZw'
 
-// Black is dominant — matches the poster's print aesthetic
 const PALETTE = [
-  [8,   8,   8  ],   // black ×3 for dominance
-  [8,   8,   8  ],
-  [8,   8,   8  ],
   [255, 36,  55 ],   // vivid red
   [255, 52,  116],   // hot pink
   [255, 145, 215],   // soft pink
@@ -14,14 +10,16 @@ const PALETTE = [
   [36,  72,  190],   // cobalt blue
   [255, 132, 0  ],   // orange
   [160, 160, 160],   // gray
+  [120, 20,  220],   // deep purple
+  [0,   180, 155],   // teal
+  [255, 70,  50 ],   // coral
 ]
 
-// Big decorative pills also use black + warm tones
 const BIG_PILL_COLORS = [
-  [8,   8,   8  ],
-  [8,   8,   8  ],
   [255, 36,  55 ],
   [255, 52,  116],
+  [120, 20,  220],
+  [0,   180, 155],
   [255, 145, 215],
 ]
 
@@ -199,8 +197,8 @@ Page({
       const color = PALETTE[i % PALETTE.length]
       const track = tracks[(i * 3 + 2) % tracks.length]
       const span  = (track.xEnd - track.xStart) * W
-      const bw = Math.max(90, name.length * 16 + 50)
-      const bh = 38 + Math.random() * 8
+      const bw = Math.max(110, name.length * 19 + 60)
+      const bh = 52 + Math.random() * 8
       const bx = track.xStart * W + Math.random() * span
       const by = track.y + gaussRandom(0, 14)
       return {
@@ -274,27 +272,29 @@ Page({
     ctx.fill()
   },
 
-  // Task bubbles: always solid black, white text — matches the poster's dark label bars
   _drawTask(b, isSelected) {
     const { ctx } = this
 
     ctx.save()
     ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
+
+    if (isSelected) {
+      ctx.scale(1.08, 1.08)
+    }
+
     ctx.translate(-b.w / 2, -b.h / 2)
 
-    // Solid black pill, slightly lighter when selected
-    ctx.fillStyle = isSelected ? 'rgba(40,40,40,1)' : 'rgba(8,8,8,0.94)'
+    ctx.fillStyle = 'rgba(8,8,8,0.97)'
     rrPath(ctx, 0, 0, b.w, b.h, 999)
     ctx.fill()
 
-    // Subtle top highlight (like the poster's slight sheen)
-    ctx.fillStyle = 'rgba(255,255,255,0.05)'
+    // Top sheen
+    ctx.fillStyle = 'rgba(255,255,255,0.07)'
     rrPath(ctx, 4, 2, b.w - 8, b.h * 0.4, 999)
     ctx.fill()
 
-    // White text
     ctx.fillStyle = '#ffffff'
-    ctx.font = '500 14px -apple-system, "PingFang SC", sans-serif'
+    ctx.font = '600 18px -apple-system, "PingFang SC", sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(b.title, b.w / 2, b.h / 2 + 0.5)
@@ -341,8 +341,17 @@ Page({
       header: { 'content-type': 'application/json' },
       data: { openid, goals: [this.selectedBubble.title] },
       success: (r) => {
+        this.setData({ loading: false })
+        if (!r.data || r.data.error || !r.data.first_step) {
+          wx.showModal({
+            title: '拆解失败',
+            content: r.data && r.data.error ? r.data.error : '请重试',
+            showCancel: false,
+          })
+          return
+        }
         this.animating = false
-        this.setData({ result: r.data, loading: false })
+        this.setData({ result: r.data })
       },
       fail: () => {
         this.setData({ loading: false })
