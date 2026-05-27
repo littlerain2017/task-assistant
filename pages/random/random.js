@@ -198,15 +198,16 @@ Page({
 
     this.decorBubbles = decors
 
-    // User task bubbles — black style, varying font sizes like p5 layout
+    // User task bubbles — black style
+    // y = track.y - bh/2 so label is CENTRED exactly on the track line, matching p5
     const taskFontSizes = [30, 34, 36, 28, 32, 30, 34, 28, 32, 36]
     this.taskBubbles = this.todayTasks.map((name, i) => {
       const track    = tracks[(i * 3 + 2) % tracks.length]
       const span     = (track.xEnd - track.xStart) * W
       const fontSize = taskFontSizes[i % taskFontSizes.length]
-      const bh = fontSize + 14
-      const bw = Math.max(130, name.length * 20 + 60)
-      const by = track.y - bh / 2 + gaussRandom(0, 14)
+      const bh = fontSize + 10
+      const bw = Math.max(160, name.length * 24 + 70)
+      const by = track.y - bh / 2        // exact centre — no Gaussian y jitter
       return {
         id: 'task_' + i,
         title: name,
@@ -215,7 +216,7 @@ Page({
         w: bw, h: bh, fontSize,
         speed:       0.015 + Math.random() * 0.04,
         driftOffset: Math.random() * 10000,
-        floatAmp:    0.5 + Math.random() * 2.3,
+        floatAmp:    0.5 + Math.random() * 2.8,
       }
     })
 
@@ -225,9 +226,9 @@ Page({
       const track    = tracks[(i * 2 + 1) % tracks.length]
       const span     = (track.xEnd - track.xStart) * W
       const fontSize = serendFontSizes[i % serendFontSizes.length]
-      const bh = fontSize + 12
-      const bw = Math.max(110, name.length * 16 + 40)
-      const by = track.y - bh / 2 + gaussRandom(0, 18)
+      const bh = fontSize + 10
+      const bw = Math.max(140, name.length * 18 + 50)
+      const by = track.y - bh / 2        // exact centre
       return {
         id: 'serend_' + i,
         title: name,
