@@ -1,33 +1,18 @@
 <view class="scatter-container">
 
-  <!-- Canvas always present so onReady can init it -->
   <canvas
     type="2d"
     id="scatterCanvas"
     class="scatter-canvas"
-    bindtouchstart="onTouchStart"
   />
 
-  <!-- No tasks overlay -->
-  <view wx:if="{{!hasTasks && !result}}" class="no-tasks-overlay">
-    <text class="no-tasks-icon">🌊</text>
-    <text class="no-tasks-title">今天还没有任务</text>
-    <text class="no-tasks-hint">先去 Focus 模式录入今天要做的事</text>
-    <button class="btn-go-focus" bindtap="goToFocus">去录入任务</button>
-  </view>
-
-  <!-- Bottom selection panel -->
-  <view wx:if="{{hasTasks && !result}}" class="bottom-panel">
-    <view wx:if="{{selectedTask}}" class="panel-selected">
-      <text class="panel-task-name">{{selectedTask}}</text>
-      <button class="btn-start" bindtap="startTask" disabled="{{loading}}">
-        <text wx:if="{{!loading}}">就这个，开始 →</text>
-        <text wx:if="{{loading}}">正在拆解...</text>
-      </button>
-    </view>
-    <view wx:if="{{!selectedTask}}" class="panel-hint">
-      点一个有文字的 bubble 选择任务
-    </view>
+  <!-- Bottom panel — always visible when no result -->
+  <view wx:if="{{!result}}" class="bottom-panel">
+    <view wx:if="{{!hasTasks}}" class="panel-hint">今天暂无任务，将从随机灵感中选一个</view>
+    <button class="btn-start" bindtap="pickAndStart" disabled="{{loading}}">
+      <text wx:if="{{!loading}}">让命运决定</text>
+      <text wx:if="{{loading}}">正在拾取...</text>
+    </button>
   </view>
 
   <!-- Result view -->

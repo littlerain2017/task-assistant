@@ -2,17 +2,17 @@ const API = 'https://web-production-e223e.up.railway.app'
 const TEMPLATE_ID = 'wnPOFUCqyZgTiMY7pdHoNgyG65k3VBC38JXLuOfXdZw'
 
 const PALETTE = [
-  [255, 36,  55 ],   // vivid red
-  [255, 52,  116],   // hot pink
-  [255, 145, 215],   // soft pink
-  [255, 228, 0  ],   // lemon yellow
-  [24,  174, 72 ],   // green
-  [36,  72,  190],   // cobalt blue
-  [255, 132, 0  ],   // orange
-  [160, 160, 160],   // gray
-  [120, 20,  220],   // deep purple
-  [0,   180, 155],   // teal
-  [255, 70,  50 ],   // coral
+  [255, 36,  55 ],
+  [255, 52,  116],
+  [255, 145, 215],
+  [255, 228, 0  ],
+  [24,  174, 72 ],
+  [36,  72,  190],
+  [255, 132, 0  ],
+  [160, 160, 160],
+  [120, 20,  220],
+  [0,   180, 155],
+  [255, 70,  50 ],
 ]
 
 const BIG_PILL_COLORS = [
@@ -23,7 +23,25 @@ const BIG_PILL_COLORS = [
   [255, 145, 215],
 ]
 
-// Box-Muller transform — replaces p5's randomGaussian()
+// 20% chance pool — serendipitous micro-tasks
+const SERENDIPITY_TASKS = [
+  '回顾一个梦境，写下来',
+  '找一张照片来调色',
+  '给许久未联系的朋友发条消息',
+  '写下今天三件让你感激的小事',
+  '找一首从没听过的歌听完',
+  '随机翻一本书读三页',
+  '在纸上随手涂鸦五分钟',
+  '整理手机相册，删掉十张不需要的照片',
+  '给自己泡一杯喜欢的茶',
+  '写一段关于此刻心情的文字',
+  '找一个想学的东西搜个入门教程',
+  '画出脑海中一个模糊的场景',
+  '整理桌上的一个小角落',
+  '写下你最近喜欢的一句话',
+  '找一张儿时的照片，想想当时的自己',
+]
+
 function gaussRandom(mean, std) {
   let u = 0, v = 0
   while (u === 0) u = Math.random()
@@ -31,7 +49,6 @@ function gaussRandom(mean, std) {
   return mean + std * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
 }
 
-// Draws a rounded-rect path — replaces p5's rect(x,y,w,h,radius)
 function rrPath(ctx, x, y, w, h, r) {
   const rad = Math.min(r, w / 2, h / 2)
   ctx.beginPath()
@@ -52,11 +69,9 @@ Page({
     loading: false,
     result: null,
     openid: '',
-    selectedTask: null,
     hasTasks: false,
   },
 
-  // Canvas state (not reactive — kept off setData for perf)
   canvas: null,
   ctx: null,
   canvasWidth: 0,
@@ -64,6 +79,7 @@ Page({
   frameCount: 0,
   decorBubbles: [],
   taskBubbles: [],
+  serendipityBubbles: [],
   selectedBubble: null,
   animating: false,
   todayTasks: [],
@@ -83,13 +99,9 @@ Page({
     this.todayTasks = all.filter(t => t.date === dateKey).map(t => t.name)
 
     this.selectedBubble = null
-    this.setData({
-      hasTasks: this.todayTasks.length > 0,
-      result: null,
-      selectedTask: null,
-    })
+    this.setData({ hasTasks: this.todayTasks.length > 0, result: null })
 
-    if (this.canvas && this.todayTasks.length > 0) {
+    if (this.canvas) {
       this.createScene()
       if (!this.animating) this.startAnimation()
     }
@@ -121,19 +133,15 @@ Page({
         this.canvasWidth = w
         this.canvasHeight = h
 
-        if (this.todayTasks.length > 0) {
-          this.createScene()
-          this.startAnimation()
-        }
+        this.createScene()
+        this.startAnimation()
       })
   },
 
-  // Builds decorBubbles + taskBubbles — mirrors createScene() in p5 sketch
   createScene() {
     const W = this.canvasWidth
     const H = this.canvasHeight
 
-    // More tracks, full coverage for dense dark look
     const tracks = [
       { y: H * 0.04,  density: 1.1,  xStart: -0.20, xEnd: 0.65 },
       { y: H * 0.12,  density: 0.9,  xStart: 0.40,  xEnd: 1.15 },
@@ -148,11 +156,9 @@ Page({
     ]
 
     const decors = []
-
     for (const track of tracks) {
       const count = Math.floor(48 * track.density)
       const span = (track.xEnd - track.xStart) * W
-
       for (let i = 0; i < count; i++) {
         const cx = track.xStart * W + Math.random() * span
         const x  = cx + gaussRandom(0, 36)
@@ -171,8 +177,6 @@ Page({
           color,
         })
       }
-
-      // Large horizontal pills per track — mostly black, some color
       for (let k = 0; k < 3; k++) {
         const color = BIG_PILL_COLORS[Math.floor(Math.random() * BIG_PILL_COLORS.length)]
         const bx = track.xStart * W + Math.random() * span
@@ -189,26 +193,44 @@ Page({
         })
       }
     }
-
     this.decorBubbles = decors
 
-    // Task bubbles — one per today's task, clickable
+    // Black task bubbles (user's own tasks)
     this.taskBubbles = this.todayTasks.map((name, i) => {
-      const color = PALETTE[i % PALETTE.length]
       const track = tracks[(i * 3 + 2) % tracks.length]
       const span  = (track.xEnd - track.xStart) * W
       const bw = Math.max(110, name.length * 19 + 60)
       const bh = 52 + Math.random() * 8
-      const bx = track.xStart * W + Math.random() * span
-      const by = track.y + gaussRandom(0, 14)
       return {
         id: 'task_' + i,
         title: name,
-        x: bx, y: by, baseY: by,
+        x: track.xStart * W + Math.random() * span,
+        y: track.y + gaussRandom(0, 14),
+        baseY: track.y + gaussRandom(0, 14),
         w: bw, h: bh,
         speed: 1.0 + Math.random() * 1.8,
         driftOffset: Math.random() * 10000,
         floatAmp: 2 + Math.random() * 4,
+      }
+    })
+
+    // Colored serendipity bubbles — always floating in the scene
+    this.serendipityBubbles = SERENDIPITY_TASKS.map((name, i) => {
+      const color = PALETTE[i % PALETTE.length]
+      const track = tracks[(i * 2 + 1) % tracks.length]
+      const span  = (track.xEnd - track.xStart) * W
+      const bw = Math.max(120, name.length * 16 + 40)
+      const bh = 46 + Math.random() * 6
+      return {
+        id: 'serend_' + i,
+        title: name,
+        x: track.xStart * W + Math.random() * span,
+        y: track.y + gaussRandom(0, 18),
+        baseY: track.y + gaussRandom(0, 18),
+        w: bw, h: bh,
+        speed: 0.7 + Math.random() * 1.4,
+        driftOffset: Math.random() * 10000,
+        floatAmp: 1.5 + Math.random() * 3,
         color,
       }
     })
@@ -238,6 +260,12 @@ Page({
     }
 
     const selId = this.selectedBubble ? this.selectedBubble.id : null
+
+    for (const b of this.serendipityBubbles) {
+      this._tick(b, W)
+      this._drawSerendipity(b, b.id === selId)
+    }
+
     for (const b of this.taskBubbles) {
       this._tick(b, W)
       this._drawTask(b, b.id === selId)
@@ -250,14 +278,11 @@ Page({
     if (b.x > W + b.w + 80) b.x = -b.w - (40 + Math.random() * 160)
   },
 
-  // Print-diffusion style — ink bleeding on paper, soft edge for colored, crisp for black
   _drawDecor(b) {
     const { ctx } = this
     const [r, g, bl] = b.color
     const isBlack = r < 30 && g < 30 && bl < 30
-
     if (!isBlack) {
-      // Colored bubbles: 2-pass soft halo like ink spreading on paper
       for (let i = 2; i >= 1; i--) {
         const grow = i * 6
         ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / (i * 5) / 255})`
@@ -265,30 +290,47 @@ Page({
         ctx.fill()
       }
     }
-
-    // Main body
     ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / 255})`
     rrPath(ctx, b.x, b.y, b.w, b.h, 999)
     ctx.fill()
   },
 
+  // Colored serendipity bubbles — vivid, semi-transparent
+  _drawSerendipity(b, isSelected) {
+    const { ctx } = this
+    const [r, g, bl] = b.color
+
+    ctx.save()
+    ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
+    if (isSelected) ctx.scale(1.08, 1.08)
+    ctx.translate(-b.w / 2, -b.h / 2)
+
+    ctx.fillStyle = `rgba(${r},${g},${bl},0.82)`
+    rrPath(ctx, 0, 0, b.w, b.h, 999)
+    ctx.fill()
+
+    ctx.fillStyle = '#ffffff'
+    ctx.font = '500 16px -apple-system, "PingFang SC", sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(b.title, b.w / 2, b.h / 2 + 0.5)
+
+    ctx.restore()
+  },
+
+  // Black task bubbles — user's own tasks
   _drawTask(b, isSelected) {
     const { ctx } = this
 
     ctx.save()
     ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
-
-    if (isSelected) {
-      ctx.scale(1.08, 1.08)
-    }
-
+    if (isSelected) ctx.scale(1.08, 1.08)
     ctx.translate(-b.w / 2, -b.h / 2)
 
     ctx.fillStyle = 'rgba(8,8,8,0.97)'
     rrPath(ctx, 0, 0, b.w, b.h, 999)
     ctx.fill()
 
-    // Top sheen
     ctx.fillStyle = 'rgba(255,255,255,0.07)'
     rrPath(ctx, 4, 2, b.w - 8, b.h * 0.4, 999)
     ctx.fill()
@@ -302,44 +344,36 @@ Page({
     ctx.restore()
   },
 
-  // Touch hit-test against task bubbles (mirrors mousePressed)
-  onTouchStart(e) {
-    if (!e.touches[0]) return
-    const touch = e.touches[0]
-    // WeChat provides element-relative x/y on canvas touch events
-    const tx = touch.x !== undefined ? touch.x : touch.clientX
-    const ty = touch.y !== undefined ? touch.y : touch.clientY
+  // Tap "让命运决定" — 80% user task, 20% serendipity
+  pickAndStart() {
+    if (this.data.loading) return
 
-    for (let i = this.taskBubbles.length - 1; i >= 0; i--) {
-      const b = this.taskBubbles[i]
-      if (tx >= b.x && tx <= b.x + b.w && ty >= b.y && ty <= b.y + b.h) {
-        this.selectedBubble = b
-        this.setData({ selectedTask: b.title })
-        return
-      }
+    let pickedName
+    const hasUserTasks = this.todayTasks.length > 0
+
+    if (hasUserTasks && Math.random() < 0.8) {
+      pickedName = this.todayTasks[Math.floor(Math.random() * this.todayTasks.length)]
+      this.selectedBubble = this.taskBubbles.find(b => b.title === pickedName) || null
+    } else {
+      pickedName = SERENDIPITY_TASKS[Math.floor(Math.random() * SERENDIPITY_TASKS.length)]
+      this.selectedBubble = this.serendipityBubbles.find(b => b.title === pickedName) || null
     }
-    // Tapped background — deselect
-    this.selectedBubble = null
-    this.setData({ selectedTask: null })
-  },
 
-  startTask() {
-    if (!this.selectedBubble || this.data.loading) return
     this.setData({ loading: true })
     const openid = this.data.openid || wx.getStorageSync('openid') || 'anonymous'
     wx.requestSubscribeMessage({
       tmplIds: [TEMPLATE_ID],
-      success: () => this._callApi(openid),
-      fail:    () => this._callApi(openid),
+      success: () => this._callApi(openid, pickedName),
+      fail:    () => this._callApi(openid, pickedName),
     })
   },
 
-  _callApi(openid) {
+  _callApi(openid, taskName) {
     wx.request({
       url: `${API}/random-start`,
       method: 'POST',
       header: { 'content-type': 'application/json' },
-      data: { openid, goals: [this.selectedBubble.title] },
+      data: { openid, goals: [taskName] },
       success: (r) => {
         this.setData({ loading: false })
         if (!r.data || r.data.error || !r.data.first_step) {
@@ -362,7 +396,7 @@ Page({
 
   reroll() {
     this.selectedBubble = null
-    this.setData({ result: null, selectedTask: null })
+    this.setData({ result: null })
     this.animating = true
     this.startAnimation()
   },
