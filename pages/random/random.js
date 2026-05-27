@@ -150,46 +150,52 @@ Page({
       { y: H * 0.925, density: 1.10, xStart: 0.18,  xEnd: 1.16 },
     ]
 
+    // p5 was built at ~750px wide; scale everything proportionally so phone
+    // matches the same visual looseness as the desktop reference.
+    const s = Math.min(1.0, W / 750)
+    const xSpread = 38 * s   // Gaussian x spread
+    const ySpread = 11 * s   // Gaussian y spread
+
     const decors = []
 
     for (const track of tracks) {
-      const count = Math.floor(54 * track.density)
+      const count = Math.floor(54 * track.density * s)  // fewer bubbles on smaller screen
       const span  = (track.xEnd - track.xStart) * W
 
       for (let i = 0; i < count; i++) {
         const cx    = track.xStart * W + Math.random() * span
-        const x     = cx + gaussRandom(0, 38)
-        const y     = track.y + gaussRandom(0, 11)
+        const x     = cx + gaussRandom(0, xSpread)
+        const y     = track.y + gaussRandom(0, ySpread)
         const isPill = Math.random() < 0.46
-        const size  = 10 + Math.random() * 24
+        const size  = (10 + Math.random() * 24) * s
         const color = PALETTE[Math.floor(Math.random() * PALETTE.length)]
         const isDark = color[0] < 30 && color[1] < 30 && color[2] < 30
         decors.push({
           x, y, baseY: y,
-          w: isPill ? 34 + Math.random() * 122 : size,
-          h: isPill ? 14 + Math.random() * 15  : size,
+          w: isPill ? (34 + Math.random() * 122) * s : size,
+          h: isPill ? (14 + Math.random() * 15)  * s : size,
           speed:       0.035 + Math.random() * 0.105,
           driftOffset: Math.random() * 10000,
-          floatAmp:    1 + Math.random() * 3.5,
+          floatAmp:    (1 + Math.random() * 3.5) * s,
           alpha: isDark ? 115 + Math.random() * 55 : 46 + Math.random() * 80,
           color,
         })
       }
 
-      // Big overlay pills (3–5 per track, like p5)
-      const bigCount = 3 + Math.floor(Math.random() * 3)
+      // Big overlay pills — also scaled
+      const bigCount = Math.max(1, Math.round((3 + Math.floor(Math.random() * 3)) * s))
       for (let k = 0; k < bigCount; k++) {
         const color  = BIG_PILL_COLORS[Math.floor(Math.random() * BIG_PILL_COLORS.length)]
         const isDark = color[0] < 30 && color[1] < 30 && color[2] < 30
         const bx = track.xStart * W + Math.random() * span
-        const by = track.y + (Math.random() * 24 - 12)
+        const by = track.y + (Math.random() * 24 - 12) * s
         decors.push({
           x: bx, y: by, baseY: by,
-          w: 120 + Math.random() * 160,
-          h: 24  + Math.random() * 16,
+          w: (120 + Math.random() * 160) * s,
+          h: (24  + Math.random() * 16)  * s,
           speed:       0.025 + Math.random() * 0.075,
           driftOffset: Math.random() * 10000,
-          floatAmp:    0.8 + Math.random() * 2.4,
+          floatAmp:    (0.8 + Math.random() * 2.4) * s,
           alpha: isDark ? 170 + Math.random() * 50 : 92 + Math.random() * 58,
           color,
         })
