@@ -1,6 +1,7 @@
 const API = 'https://web-production-e223e.up.railway.app'
 const TEMPLATE_ID = 'wnPOFUCqyZgTiMY7pdHoNgyG65k3VBC38JXLuOfXdZw'
 
+// Matches p5 palette exactly — charcoal restored
 const PALETTE = [
   [255, 36,  55 ],
   [255, 52,  116],
@@ -9,21 +10,16 @@ const PALETTE = [
   [24,  174, 72 ],
   [36,  72,  190],
   [255, 132, 0  ],
-  [160, 160, 160],
-  [120, 20,  220],
-  [0,   180, 155],
-  [255, 70,  50 ],
+  [20,  20,  22 ],
 ]
 
 const BIG_PILL_COLORS = [
   [255, 36,  55 ],
   [255, 52,  116],
-  [120, 20,  220],
-  [0,   180, 155],
   [255, 145, 215],
+  [20,  20,  22 ],
 ]
 
-// 20% chance pool — serendipitous micro-tasks
 const SERENDIPITY_TASKS = [
   '回顾一个梦境，写下来',
   '找一张照片来调色',
@@ -32,14 +28,14 @@ const SERENDIPITY_TASKS = [
   '找一首从没听过的歌听完',
   '随机翻一本书读三页',
   '在纸上随手涂鸦五分钟',
-  '整理手机相册，删掉十张不需要的照片',
+  '整理手机相册，删十张照片',
   '给自己泡一杯喜欢的茶',
   '写一段关于此刻心情的文字',
-  '找一个想学的东西搜个入门教程',
+  '找一个想学的东西搜入门教程',
   '画出脑海中一个模糊的场景',
   '整理桌上的一个小角落',
   '写下你最近喜欢的一句话',
-  '找一张儿时的照片，想想当时的自己',
+  '找一张儿时的照片想想自己',
 ]
 
 function gaussRandom(mean, std) {
@@ -142,96 +138,105 @@ Page({
     const W = this.canvasWidth
     const H = this.canvasHeight
 
+    // Exact same 8-track layout as p5
     const tracks = [
-      { y: H * 0.04,  density: 1.1,  xStart: -0.20, xEnd: 0.65 },
-      { y: H * 0.12,  density: 0.9,  xStart: 0.40,  xEnd: 1.15 },
-      { y: H * 0.21,  density: 1.0,  xStart: -0.15, xEnd: 0.75 },
-      { y: H * 0.30,  density: 1.2,  xStart: 0.10,  xEnd: 1.10 },
-      { y: H * 0.40,  density: 1.1,  xStart: -0.20, xEnd: 0.85 },
-      { y: H * 0.50,  density: 1.0,  xStart: 0.25,  xEnd: 1.15 },
-      { y: H * 0.60,  density: 1.1,  xStart: -0.15, xEnd: 0.70 },
-      { y: H * 0.70,  density: 0.9,  xStart: 0.30,  xEnd: 1.10 },
-      { y: H * 0.80,  density: 1.0,  xStart: -0.20, xEnd: 0.80 },
-      { y: H * 0.90,  density: 1.1,  xStart: 0.15,  xEnd: 1.15 },
+      { y: H * 0.035, density: 1.15, xStart: -0.16, xEnd: 0.66 },
+      { y: H * 0.115, density: 0.95, xStart: 0.52,  xEnd: 1.08 },
+      { y: H * 0.175, density: 0.80, xStart: -0.02, xEnd: 0.44 },
+      { y: H * 0.335, density: 1.38, xStart: -0.18, xEnd: 1.05 },
+      { y: H * 0.635, density: 1.12, xStart: -0.18, xEnd: 0.62 },
+      { y: H * 0.715, density: 1.02, xStart: 0.48,  xEnd: 1.08 },
+      { y: H * 0.815, density: 1.00, xStart: -0.22, xEnd: 0.46 },
+      { y: H * 0.925, density: 1.10, xStart: 0.18,  xEnd: 1.16 },
     ]
 
     const decors = []
+
     for (const track of tracks) {
-      const count = Math.floor(48 * track.density)
-      const span = (track.xEnd - track.xStart) * W
+      const count = Math.floor(54 * track.density)
+      const span  = (track.xEnd - track.xStart) * W
+
       for (let i = 0; i < count; i++) {
-        const cx = track.xStart * W + Math.random() * span
-        const x  = cx + gaussRandom(0, 36)
-        const y  = track.y + gaussRandom(0, 10)
-        const pill = Math.random() < 0.44
-        const size = 10 + Math.random() * 22
+        const cx    = track.xStart * W + Math.random() * span
+        const x     = cx + gaussRandom(0, 38)
+        const y     = track.y + gaussRandom(0, 11)
+        const isPill = Math.random() < 0.46
+        const size  = 10 + Math.random() * 24
         const color = PALETTE[Math.floor(Math.random() * PALETTE.length)]
+        const isDark = color[0] < 30 && color[1] < 30 && color[2] < 30
         decors.push({
           x, y, baseY: y,
-          w: pill ? 36 + Math.random() * 120 : size,
-          h: pill ? 13 + Math.random() * 14  : size,
-          speed: 0.8 + Math.random() * 2.4,
+          w: isPill ? 34 + Math.random() * 122 : size,
+          h: isPill ? 14 + Math.random() * 15  : size,
+          speed:       0.035 + Math.random() * 0.105,
           driftOffset: Math.random() * 10000,
-          floatAmp: 1.5 + Math.random() * 4.5,
-          alpha: 90 + Math.random() * 110,
+          floatAmp:    1 + Math.random() * 3.5,
+          alpha: isDark ? 115 + Math.random() * 55 : 46 + Math.random() * 80,
           color,
         })
       }
-      for (let k = 0; k < 3; k++) {
-        const color = BIG_PILL_COLORS[Math.floor(Math.random() * BIG_PILL_COLORS.length)]
+
+      // Big overlay pills (3–5 per track, like p5)
+      const bigCount = 3 + Math.floor(Math.random() * 3)
+      for (let k = 0; k < bigCount; k++) {
+        const color  = BIG_PILL_COLORS[Math.floor(Math.random() * BIG_PILL_COLORS.length)]
+        const isDark = color[0] < 30 && color[1] < 30 && color[2] < 30
         const bx = track.xStart * W + Math.random() * span
-        const by = track.y + gaussRandom(0, 11)
+        const by = track.y + (Math.random() * 24 - 12)
         decors.push({
           x: bx, y: by, baseY: by,
-          w: 100 + Math.random() * 130,
-          h: 22  + Math.random() * 16,
-          speed: 0.6 + Math.random() * 1.8,
+          w: 120 + Math.random() * 160,
+          h: 24  + Math.random() * 16,
+          speed:       0.025 + Math.random() * 0.075,
           driftOffset: Math.random() * 10000,
-          floatAmp: 1 + Math.random() * 2.5,
-          alpha: 140 + Math.random() * 80,
+          floatAmp:    0.8 + Math.random() * 2.4,
+          alpha: isDark ? 170 + Math.random() * 50 : 92 + Math.random() * 58,
           color,
         })
       }
     }
+
     this.decorBubbles = decors
 
-    // Black task bubbles (user's own tasks)
+    // User task bubbles — black style, varying font sizes like p5 layout
+    const taskFontSizes = [30, 34, 36, 28, 32, 30, 34, 28, 32, 36]
     this.taskBubbles = this.todayTasks.map((name, i) => {
-      const track = tracks[(i * 3 + 2) % tracks.length]
-      const span  = (track.xEnd - track.xStart) * W
-      const bw = Math.max(110, name.length * 19 + 60)
-      const bh = 52 + Math.random() * 8
+      const track    = tracks[(i * 3 + 2) % tracks.length]
+      const span     = (track.xEnd - track.xStart) * W
+      const fontSize = taskFontSizes[i % taskFontSizes.length]
+      const bh = fontSize + 14
+      const bw = Math.max(130, name.length * 20 + 60)
+      const by = track.y - bh / 2 + gaussRandom(0, 14)
       return {
         id: 'task_' + i,
         title: name,
         x: track.xStart * W + Math.random() * span,
-        y: track.y + gaussRandom(0, 14),
-        baseY: track.y + gaussRandom(0, 14),
-        w: bw, h: bh,
-        speed: 1.0 + Math.random() * 1.8,
+        y: by, baseY: by,
+        w: bw, h: bh, fontSize,
+        speed:       0.015 + Math.random() * 0.04,
         driftOffset: Math.random() * 10000,
-        floatAmp: 2 + Math.random() * 4,
+        floatAmp:    0.5 + Math.random() * 2.3,
       }
     })
 
-    // Colored serendipity bubbles — always floating in the scene
+    // Serendipity bubbles — red style
+    const serendFontSizes = [20, 24, 22, 26, 20, 24, 22, 26, 20, 24, 22, 26, 20, 24, 22]
     this.serendipityBubbles = SERENDIPITY_TASKS.map((name, i) => {
-      const color = PALETTE[i % PALETTE.length]
-      const track = tracks[(i * 2 + 1) % tracks.length]
-      const span  = (track.xEnd - track.xStart) * W
-      const bw = Math.max(120, name.length * 16 + 40)
-      const bh = 46 + Math.random() * 6
+      const track    = tracks[(i * 2 + 1) % tracks.length]
+      const span     = (track.xEnd - track.xStart) * W
+      const fontSize = serendFontSizes[i % serendFontSizes.length]
+      const bh = fontSize + 12
+      const bw = Math.max(110, name.length * 16 + 40)
+      const by = track.y - bh / 2 + gaussRandom(0, 18)
       return {
         id: 'serend_' + i,
         title: name,
         x: track.xStart * W + Math.random() * span,
-        y: track.y + gaussRandom(0, 18),
-        baseY: track.y + gaussRandom(0, 18),
-        w: bw, h: bh,
-        speed: 0.7 + Math.random() * 1.4,
+        y: by, baseY: by,
+        w: bw, h: bh, fontSize,
+        speed:       0.015 + Math.random() * 0.04,
         driftOffset: Math.random() * 10000,
-        floatAmp: 1.5 + Math.random() * 3,
-        color,
+        floatAmp:    0.5 + Math.random() * 2.3,
       }
     })
   },
@@ -254,6 +259,8 @@ Page({
     ctx.fillStyle = '#fffef8'
     ctx.fillRect(0, 0, W, H)
 
+    this._drawPaperTexture()
+
     for (const b of this.decorBubbles) {
       this._tick(b, W)
       this._drawDecor(b)
@@ -263,88 +270,85 @@ Page({
 
     for (const b of this.serendipityBubbles) {
       this._tick(b, W)
-      this._drawSerendipity(b, b.id === selId)
+      this._drawLabel(b, [255, 36, 55], 175, b.id === selId)
     }
 
     for (const b of this.taskBubbles) {
       this._tick(b, W)
-      this._drawTask(b, b.id === selId)
+      this._drawLabel(b, [15, 15, 17], 210, b.id === selId)
     }
   },
 
   _tick(b, W) {
     b.x += b.speed
-    b.y = b.baseY + Math.sin(this.frameCount * 0.012 + b.driftOffset) * b.floatAmp
-    if (b.x > W + b.w + 80) b.x = -b.w - (40 + Math.random() * 160)
+    b.y = b.baseY + Math.sin(this.frameCount * 0.01 + b.driftOffset) * b.floatAmp
+    if (b.x > W + b.w + 100) b.x = -b.w - (40 + Math.random() * 200)
   },
 
+  // Subtle paper texture — 65 micro-dots + warm tint, matches p5's drawPaperTexture
+  _drawPaperTexture() {
+    const { ctx, canvasWidth: W, canvasHeight: H } = this
+    ctx.fillStyle = 'rgba(0,0,0,0.012)'
+    for (let i = 0; i < 65; i++) {
+      ctx.beginPath()
+      ctx.arc(Math.random() * W, Math.random() * H, 0.15 + Math.random() * 0.35, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    ctx.fillStyle = 'rgba(255,245,218,0.027)'
+    ctx.fillRect(0, 0, W, H)
+  },
+
+  // 4-pass ink diffusion — matches p5's drawReferenceLikeBubble
   _drawDecor(b) {
     const { ctx } = this
     const [r, g, bl] = b.color
-    const isBlack = r < 30 && g < 30 && bl < 30
-    if (!isBlack) {
-      for (let i = 2; i >= 1; i--) {
-        const grow = i * 6
-        ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / (i * 5) / 255})`
-        rrPath(ctx, b.x - grow / 2, b.y - grow / 2, b.w + grow, b.h + grow, 999)
-        ctx.fill()
-      }
+
+    for (let i = 4; i >= 1; i--) {
+      const grow = i * 5
+      ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / (i * 4) / 255})`
+      rrPath(ctx, b.x - grow / 2, b.y - grow / 2, b.w + grow, b.h + grow, 999)
+      ctx.fill()
     }
+
     ctx.fillStyle = `rgba(${r},${g},${bl},${b.alpha / 255})`
     rrPath(ctx, b.x, b.y, b.w, b.h, 999)
     ctx.fill()
+
+    ctx.fillStyle = 'rgba(255,255,255,0.047)'
+    rrPath(ctx, b.x + 4, b.y + 3, Math.max(1, b.w - 8), Math.max(1, b.h * 0.36), 999)
+    ctx.fill()
   },
 
-  // Colored serendipity bubbles — vivid, semi-transparent
-  _drawSerendipity(b, isSelected) {
+  // 3-pass glow + white text — matches p5's drawTextLabel
+  _drawLabel(b, fillColor, alpha, isSelected) {
     const { ctx } = this
-    const [r, g, bl] = b.color
+    const [r, g, bl] = fillColor
 
     ctx.save()
     ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
     if (isSelected) ctx.scale(1.08, 1.08)
     ctx.translate(-b.w / 2, -b.h / 2)
 
-    ctx.fillStyle = `rgba(${r},${g},${bl},0.82)`
+    for (let i = 3; i >= 1; i--) {
+      const grow = i * 4
+      ctx.fillStyle = `rgba(${r},${g},${bl},${alpha / (i * 4) / 255})`
+      rrPath(ctx, -grow / 2, -grow / 2, b.w + grow, b.h + grow, 999)
+      ctx.fill()
+    }
+
+    ctx.fillStyle = `rgba(${r},${g},${bl},${alpha / 255})`
     rrPath(ctx, 0, 0, b.w, b.h, 999)
     ctx.fill()
 
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '500 16px -apple-system, "PingFang SC", sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.91)'
+    ctx.font = `normal ${b.fontSize}px -apple-system, "PingFang SC", sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(b.title, b.w / 2, b.h / 2 + 0.5)
+    ctx.fillText(b.title, b.w / 2, b.h / 2 + 1)
 
     ctx.restore()
   },
 
-  // Black task bubbles — user's own tasks
-  _drawTask(b, isSelected) {
-    const { ctx } = this
-
-    ctx.save()
-    ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
-    if (isSelected) ctx.scale(1.08, 1.08)
-    ctx.translate(-b.w / 2, -b.h / 2)
-
-    ctx.fillStyle = 'rgba(8,8,8,0.97)'
-    rrPath(ctx, 0, 0, b.w, b.h, 999)
-    ctx.fill()
-
-    ctx.fillStyle = 'rgba(255,255,255,0.07)'
-    rrPath(ctx, 4, 2, b.w - 8, b.h * 0.4, 999)
-    ctx.fill()
-
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '600 18px -apple-system, "PingFang SC", sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(b.title, b.w / 2, b.h / 2 + 0.5)
-
-    ctx.restore()
-  },
-
-  // Tap "让命运决定" — 80% user task, 20% serendipity
   pickAndStart() {
     if (this.data.loading) return
 
